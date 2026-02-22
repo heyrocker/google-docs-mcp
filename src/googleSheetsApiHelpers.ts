@@ -257,7 +257,7 @@ export async function addSheet(
  * Parses A1 notation range to extract sheet name and cell range
  * Returns {sheetName, a1Range} where a1Range is just the cell part (e.g., "A1:B2")
  */
-function parseRange(range: string): { sheetName: string | null; a1Range: string } {
+export function parseRange(range: string): { sheetName: string | null; a1Range: string } {
   if (range.includes('!')) {
     const parts = range.split('!');
     return {
@@ -275,7 +275,7 @@ function parseRange(range: string): { sheetName: string | null; a1Range: string 
  * Resolves a sheet name to a numeric sheet ID.
  * If sheetName is null/undefined, returns the first sheet's ID.
  */
-async function resolveSheetId(
+export async function resolveSheetId(
   sheets: Sheets,
   spreadsheetId: string,
   sheetName?: string | null
@@ -301,7 +301,7 @@ async function resolveSheetId(
  * Converts column letters to a 0-based column index.
  * Example: "A" -> 0, "B" -> 1, "Z" -> 25, "AA" -> 26
  */
-function colLettersToIndex(col: string): number {
+export function colLettersToIndex(col: string): number {
   let index = 0;
   const upper = col.toUpperCase();
   for (let i = 0; i < upper.length; i++) {
@@ -320,7 +320,7 @@ function colLettersToIndex(col: string): number {
  * start/end index is left out of the GridRange, which the Sheets API
  * interprets as "unbounded" (i.e., the entire row or column).
  */
-function parseA1ToGridRange(a1Range: string, sheetId: number): sheets_v4.Schema$GridRange {
+export function parseA1ToGridRange(a1Range: string, sheetId: number): sheets_v4.Schema$GridRange {
   // Whole-row pattern: "1:3" or "1"
   const rowOnlyMatch = a1Range.match(/^(\d+)(?::(\d+))?$/);
   if (rowOnlyMatch) {
