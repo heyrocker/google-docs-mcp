@@ -199,6 +199,41 @@ For Google Workspace with domain-wide delegation:
 
 OAuth refresh tokens are stored in `~/.config/google-docs-mcp/token.json` (respects `XDG_CONFIG_HOME`). To re-authorize, run the `auth` command again or delete the token file.
 
+### Multiple Google Accounts
+
+Set `GOOGLE_MCP_PROFILE` to store tokens in a profile-specific subdirectory. This allows using different Google accounts for different projects:
+
+| Variable             | Description                                        |
+| -------------------- | -------------------------------------------------- |
+| `GOOGLE_MCP_PROFILE` | Profile name for isolated token storage (optional) |
+
+```json
+{
+  "mcpServers": {
+    "google-docs": {
+      "command": "npx",
+      "args": ["-y", "google-docs-mcp"],
+      "env": {
+        "GOOGLE_CLIENT_ID": "...",
+        "GOOGLE_CLIENT_SECRET": "...",
+        "GOOGLE_MCP_PROFILE": "work"
+      }
+    }
+  }
+}
+```
+
+Tokens are stored per profile:
+
+```
+~/.config/google-docs-mcp/
+├── token.json              # default (no profile)
+├── work/token.json         # GOOGLE_MCP_PROFILE=work
+├── personal/token.json     # GOOGLE_MCP_PROFILE=personal
+```
+
+Without `GOOGLE_MCP_PROFILE`, behavior is unchanged.
+
 ---
 
 ## Known Limitations

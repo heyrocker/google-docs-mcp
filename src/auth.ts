@@ -23,11 +23,16 @@ const CREDENTIALS_PATH = path.join(projectRootDir, 'credentials.json');
 /**
  * Token storage directory following XDG Base Directory spec.
  * Uses $XDG_CONFIG_HOME if set, otherwise ~/.config.
+ *
+ * When GOOGLE_MCP_PROFILE is set, tokens are stored in a subdirectory
+ * per profile, allowing multiple Google accounts (one per project).
  */
 function getConfigDir(): string {
   const xdg = process.env.XDG_CONFIG_HOME;
   const base = xdg || path.join(os.homedir(), '.config');
-  return path.join(base, 'google-docs-mcp');
+  const baseDir = path.join(base, 'google-docs-mcp');
+  const profile = process.env.GOOGLE_MCP_PROFILE;
+  return profile ? path.join(baseDir, profile) : baseDir;
 }
 
 function getTokenPath(): string {
