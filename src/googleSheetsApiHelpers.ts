@@ -389,6 +389,7 @@ export async function formatCells(
     };
     horizontalAlignment?: 'LEFT' | 'CENTER' | 'RIGHT';
     verticalAlignment?: 'TOP' | 'MIDDLE' | 'BOTTOM';
+    numberFormat?: { type: string; pattern?: string };
   }
 ): Promise<sheets_v4.Schema$BatchUpdateSpreadsheetResponse> {
   try {
@@ -440,6 +441,21 @@ export async function formatCells(
       userEnteredFormat.verticalAlignment = format.verticalAlignment;
     }
 
+    if (format.numberFormat) {
+      userEnteredFormat.numberFormat = {
+        type: format.numberFormat.type,
+        pattern: format.numberFormat.pattern ?? '',
+      };
+    }
+
+    const fields = [
+      'backgroundColor',
+      'textFormat',
+      'horizontalAlignment',
+      'verticalAlignment',
+      ...(format.numberFormat ? ['numberFormat'] : []),
+    ].join(',');
+
     const response = await sheets.spreadsheets.batchUpdate({
       spreadsheetId,
       requestBody: {
@@ -450,8 +466,7 @@ export async function formatCells(
               cell: {
                 userEnteredFormat,
               },
-              fields:
-                'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)',
+              fields: `userEnteredFormat(${fields})`,
             },
           },
         ],
