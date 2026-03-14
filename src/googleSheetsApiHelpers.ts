@@ -626,6 +626,55 @@ export function hexToRgb(hex: string): { red: number; green: number; blue: numbe
   };
 }
 
+/**
+ * Appends a BooleanRule conditional format rule to a spreadsheet.
+ */
+export async function addConditionalFormatRule(
+  sheets: Sheets,
+  spreadsheetId: string,
+  ranges: sheets_v4.Schema$GridRange[],
+  conditionType: string,
+  conditionValues: Array<{ userEnteredValue: string }>,
+  format: Record<string, unknown>
+): Promise<void> {
+  try {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addConditionalFormatRule: {
+              rule: {
+                ranges,
+                booleanRule: {
+                  condition: {
+                    type: conditionType,
+                    values: conditionValues,
+                  },
+                  format,
+                },
+              },
+              index: 0,
+            },
+          },
+        ],
+      },
+    });
+  } catch (error: any) {
+    if (error.code === 404) {
+      throw new UserError(`Spreadsheet not found (ID: ${spreadsheetId}). Check the ID.`);
+    }
+    if (error.code === 403) {
+      throw new UserError(
+        `Permission denied for spreadsheet (ID: ${spreadsheetId}). Ensure you have write access.`
+      );
+    }
+    throw new UserError(
+      `Failed to add conditional format rule: ${error.message || 'Unknown error'}`
+    );
+  }
+}
+
 // --- Table Helper Functions ---
 
 /**
