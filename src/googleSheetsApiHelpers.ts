@@ -606,6 +606,68 @@ export async function setDropdownValidation(
 }
 
 /**
+ * Sets the width (in pixels) of one or more columns.
+ * Each entry may target a single column ("A") or a contiguous range ("A:C").
+ */
+export async function setColumnWidths(
+  sheets: Sheets,
+  spreadsheetId: string,
+  sheetName: string | null | undefined,
+  columnWidths: Array<{ column: string; width: number }>
+): Promise<sheets_v4.Schema$BatchUpdateSpreadsheetResponse> {
+  try {
+    const sheetId = await resolveSheetId(sheets, spreadsheetId, sheetName);
+
+    const requests: sheets_v4.Schema$Request[] = columnWidths.map(({ column, width }) => {
+      const colonIdx = column.indexOf(':');
+      let startIndex: number;
+      let endIndex: number;
+
+      if (colonIdx !== -1) {
+        startIndex = colLettersToIndex(column.slice(0, colonIdx).trim());
+        endIndex = colLettersToIndex(column.slice(colonIdx + 1).trim()) + 1;
+      } else {
+        startIndex = colLettersToIndex(column.trim());
+        endIndex = startIndex + 1;
+      }
+
+      return {
+        updateDimensionProperties: {
+          range: {
+            sheetId,
+            dimension: 'COLUMNS',
+            startIndex,
+            endIndex,
+          },
+          properties: {
+            pixelSize: width,
+          },
+          fields: 'pixelSize',
+        },
+      };
+    });
+
+    const response = await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: { requests },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    if (error.code === 404) {
+      throw new UserError(`Spreadsheet not found (ID: ${spreadsheetId}). Check the ID.`);
+    }
+    if (error.code === 403) {
+      throw new UserError(
+        `Permission denied for spreadsheet (ID: ${spreadsheetId}). Ensure you have write access.`
+      );
+    }
+    if (error instanceof UserError) throw error;
+    throw new UserError(`Failed to set column widths: ${error.message || 'Unknown error'}`);
+  }
+}
+
+/**
  * Helper to convert hex color to RGB (0-1 range)
  */
 export function hexToRgb(hex: string): { red: number; green: number; blue: number } | null {
