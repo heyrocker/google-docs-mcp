@@ -31,6 +31,8 @@ import { register as getTable } from './getTable.js';
 import { register as deleteTable } from './deleteTable.js';
 import { register as updateTableRange } from './updateTableRange.js';
 import { register as appendTableRows } from './appendTableRows.js';
+import { register as insertChart } from './insertChart.js';
+import { register as deleteChart } from './deleteChart.js';
 
 export function registerSheetsTools(server: FastMCP) {
   readSpreadsheet(server);
@@ -65,4 +67,6 @@ export function registerSheetsTools(server: FastMCP) {
   deleteTable(server);
   updateTableRange(server);
   appendTableRows(server);
+  insertChart(server);
+  deleteChart(server);
 }
